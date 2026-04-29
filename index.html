@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#071019" />
+  <title>Ben e o Mundo Molecular — v3 Pedagógica</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/ben.jpg" alt="Ben" class="brand-ben" />
+        <div>
+          <h1>Ben e o Mundo Molecular</h1>
+          <p>v3 pedagógica: hipótese → coleta seletiva → construção → reação → justificativa</p>
+        </div>
+      </div>
+      <button class="ghost-btn" id="aboutBtn">Critérios pedagógicos</button>
+    </header>
+
+    <main>
+      <section class="screen active" id="startScreen">
+        <div class="hero-grid">
+          <article class="glass hero-copy">
+            <span class="badge">🎮 serious game em HTML para GitHub Pages</span>
+            <h2>MolCraft: <span>Aventura Molecular com Ben</span></h2>
+            <p class="lead">
+              Nesta versão, o aluno não avança apenas clicando. Ele precisa prever a fórmula, coletar os átomos corretos, justificar valência e aplicar a molécula em reações orgânicas.
+            </p>
+            <div class="start-form">
+              <input id="studentName" type="text" placeholder="Nome do aluno" maxlength="32" autocomplete="name" />
+              <input id="studentClass" type="text" placeholder="Turma" maxlength="24" />
+              <button class="primary-btn" id="startBtn">Iniciar missão molecular</button>
+            </div>
+            <div class="mini-objectives">
+              <div><strong>1</strong><span>Hipótese química</span></div>
+              <div><strong>2</strong><span>Coleta seletiva</span></div>
+              <div><strong>3</strong><span>Valência e construção</span></div>
+              <div><strong>4</strong><span>Reação e justificativa</span></div>
+            </div>
+          </article>
+
+          <article class="glass ben-card">
+            <div class="atom-orbit a1">C</div>
+            <div class="atom-orbit a2">H</div>
+            <div class="atom-orbit a3">O</div>
+            <div class="atom-orbit a4">Br</div>
+            <img src="assets/ben.jpg" alt="Ben, mascote da Química" class="hero-ben" />
+            <p>“Moléculas, moléculas, moléculas! Mas agora com raciocínio químico.”</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="screen" id="aboutScreen">
+        <article class="glass info-card">
+          <h2>O que mudou nesta versão?</h2>
+          <div class="criteria-grid">
+            <div>
+              <h3>Objetivo indispensável</h3>
+              <p>O aluno precisa usar Química para avançar: fórmula, contagem, valência, classificação da reação e justificativa.</p>
+            </div>
+            <div>
+              <h3>Coleta com sentido</h3>
+              <p>Coletar átomo errado gera feedback conceitual. O mapa tem distratores, mas eles não são “moedas”.</p>
+            </div>
+            <div>
+              <h3>Feedback formativo</h3>
+              <p>O erro informa o motivo: prefixo incorreto, átomo incompatível, excesso, valência ou mecanismo.</p>
+            </div>
+            <div>
+              <h3>Relatório pedagógico</h3>
+              <p>O resultado exporta dados de tentativa, erros, dicas usadas, moléculas e reações concluídas.</p>
+            </div>
+          </div>
+          <button class="primary-btn" id="backFromAbout">Voltar</button>
+        </article>
+      </section>
+
+      <section class="screen" id="gameScreen">
+        <div class="game-layout">
+          <aside class="glass side-panel">
+            <div class="player-row">
+              <div>
+                <strong id="playerLabel">Aluno</strong>
+                <span id="classLabel">Turma</span>
+              </div>
+              <button class="ghost-btn danger" id="resetBtn">Reiniciar</button>
+            </div>
+
+            <div class="stat-grid">
+              <div class="stat"><strong id="scoreValue">0</strong><span>pontos</span></div>
+              <div class="stat"><strong id="phaseValue">1</strong><span>fase</span></div>
+              <div class="stat"><strong id="builtValue">0/5</strong><span>moléculas</span></div>
+              <div class="stat"><strong id="reactionValue">0/6</strong><span>reações</span></div>
+            </div>
+
+            <div class="progress"><div id="progressBar"></div></div>
+
+            <section class="ben-dialogue">
+              <div class="dialogue-head">
+                <img src="assets/ben.jpg" alt="Ben" />
+                <strong>Ben orienta</strong>
+              </div>
+              <p id="benText">Vamos começar.</p>
+              <button class="ghost-btn" id="hintBtn">Pedir dica do Ben (-5)</button>
+            </section>
+
+            <section class="mission-card">
+              <h2 id="missionTitle">Missão</h2>
+              <p id="missionText"></p>
+              <div id="targetPanel" class="target-panel"></div>
+            </section>
+
+            <nav class="action-row">
+              <button class="secondary-btn" id="mapTabBtn">Mapa</button>
+              <button class="secondary-btn" id="builderTabBtn">Bancada</button>
+              <button class="secondary-btn" id="reactionTabBtn">Reações</button>
+              <button class="secondary-btn" id="resultsTabBtn">Resultado</button>
+            </nav>
+          </aside>
+
+          <section class="glass main-panel">
+            <div class="tab active" id="mapTab">
+              <div class="panel-head">
+                <div>
+                  <h2 id="worldTitle">Vale dos Átomos</h2>
+                  <p id="worldSubtitle">Responda a hipótese antes de coletar.</p>
+                </div>
+                <div class="keyboard-note">Setas/WASD ou botões</div>
+              </div>
+              <div id="hypothesisBox" class="challenge-box"></div>
+              <div class="map-grid" id="gameGrid" aria-label="Mapa de coleta"></div>
+              <div class="move-pad" aria-label="Controles de movimento">
+                <button data-dir="up">↑</button>
+                <button data-dir="left">←</button>
+                <button data-dir="down">↓</button>
+                <button data-dir="right">→</button>
+              </div>
+            </div>
+
+            <div class="tab" id="builderTab">
+              <div class="panel-head">
+                <div>
+                  <h2>Bancada molecular</h2>
+                  <p>Para construir, confirme contagem e explique a regra química.</p>
+                </div>
+              </div>
+              <div id="builderContent"></div>
+            </div>
+
+            <div class="tab" id="reactionTab">
+              <div class="panel-head">
+                <div>
+                  <h2>Arena de reações</h2>
+                  <p>A reação só abre quando a molécula necessária já foi construída.</p>
+                </div>
+              </div>
+              <div id="reactionContent"></div>
+            </div>
+
+            <div class="tab" id="resultTab">
+              <div class="panel-head">
+                <div>
+                  <h2>Resultado e relatório</h2>
+                  <p>Use para discutir no Moodle, WhatsApp ou em sala.</p>
+                </div>
+              </div>
+              <div id="resultContent"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Ben e o Mundo Molecular — v3 Pedagógica
+
+Material educacional criado para fins didáticos.
+Você pode adaptar o código para uso em disciplinas, GitHub Pages e Moodle, mantendo crédito ao projeto original.
+
+A imagem do mascote Ben foi fornecida pelo usuário neste projeto e deve ser usada apenas conforme autorização do titular.

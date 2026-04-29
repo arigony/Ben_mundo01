@@ -1,4 +1,4 @@
-# Ben e o Mundo Molecular — v3 Pedagógica
+# Ben e o Mundo Molecular — v4 Corrigida
 
 Protótipo HTML/CSS/JavaScript para GitHub Pages de um serious game de Química Orgânica com o mascote Ben.
 
@@ -15,7 +15,7 @@ O aluno avança por uma sequência pedagógica:
 ## Estrutura do pacote
 
 ```text
-ben_mundo_molecular_v3_pedagogica/
+ben_mundo_molecular_v4_corrigida/
 ├── index.html
 ├── styles.css
 ├── script.js
@@ -37,7 +37,7 @@ ben_mundo_molecular_v3_pedagogica/
    - Folder: **/root**
 5. Aguarde o GitHub gerar o link público.
 
-## O que há de novo na v3
+## O que há de novo na v4
 
 - O aluno não pode coletar antes de responder à hipótese molecular.
 - Átomos errados são tratados como distratores e geram feedback químico.
@@ -46,6 +46,9 @@ ben_mundo_molecular_v3_pedagogica/
 - Cada reação exige resposta e justificativa.
 - O jogo salva ranking local no navegador.
 - O relatório final pode ser exportado em CSV.
+- Alternativas de resposta agora são embaralhadas por sessão, evitando que a resposta correta fique sempre na mesma posição.
+- A estrutura 2D do eteno foi corrigida e agora é renderizada em SVG, não em ASCII.
+- A bancada inclui visualização 3D interativa via 3Dmol.js carregado por CDN; se não houver internet, a estrutura 2D continua funcionando.
 
 ## Conteúdo químico da versão
 

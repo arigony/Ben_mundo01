@@ -38,7 +38,7 @@ const MOLECULES = [
     hypothesis: { question: 'Qual fórmula representa o eteno?', options: ['C₂H₆', 'C₂H₄', 'CH₄', 'C₂H₅Br'], answer: 'C₂H₄', hint: 'Alcenos têm menos hidrogênios que alcanos correspondentes.' },
     count: { question: 'Confirme a contagem correta para eteno.', options: ['C = 2 | H = 4', 'C = 2 | H = 6', 'C = 1 | H = 4', 'C = 2 | H = 6 | O = 1'], answer: 'C = 2 | H = 4', hint: 'Eteno tem 2 carbonos e 4 hidrogênios.' },
     justification: { question: 'O que diferencia eteno de etano?', options: ['O eteno tem ligação dupla C=C.', 'O eteno tem oxigênio.', 'O eteno tem bromo.', 'O eteno tem apenas um carbono.'], answer: 'O eteno tem ligação dupla C=C.', hint: 'A terminação “-eno” indica alceno, geralmente com C=C.' },
-    diagram: `H   H\n \ /\n  C = C\n / \nH   H`,
+    diagram: `H   H\n \ /\n  C=C\n / \\nH   H`,
     success: 'Perfeito! O eteno tem ligação dupla C=C. Isso desbloqueia a lógica da adição.'
   },
   {
@@ -116,6 +116,7 @@ const state = {
   justificationDone: false,
   built: [],
   completedReactions: [],
+  optionOrders: {},
   selectedReactionId: null,
   reactionAnswered: false,
   reactionJustified: false,
@@ -130,6 +131,99 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 const allSymbols = Object.keys(ELEMENTS);
+
+function shuffleArray(items) {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function orderedOptions(key, options) {
+  if (!state.optionOrders[key]) state.optionOrders[key] = shuffleArray(options);
+  return state.optionOrders[key];
+}
+
+const XYZ_MODELS = {
+  metano: `5
+Metano CH4
+C 0.000 0.000 0.000
+H 0.629 0.629 0.629
+H -0.629 -0.629 0.629
+H -0.629 0.629 -0.629
+H 0.629 -0.629 -0.629`,
+  etano: `8
+Etano C2H6
+C -0.770 0.000 0.000
+C 0.770 0.000 0.000
+H -1.170 1.020 0.000
+H -1.170 -0.510 0.884
+H -1.170 -0.510 -0.884
+H 1.170 -1.020 0.000
+H 1.170 0.510 0.884
+H 1.170 0.510 -0.884`,
+  eteno: `6
+Eteno C2H4
+C -0.670 0.000 0.000
+C 0.670 0.000 0.000
+H -1.230 0.930 0.000
+H -1.230 -0.930 0.000
+H 1.230 0.930 0.000
+H 1.230 -0.930 0.000`,
+  etanol: `9
+Etanol C2H6O
+C -1.200 0.000 0.000
+C 0.200 0.000 0.000
+O 1.520 0.000 0.000
+H 2.000 0.780 0.000
+H -1.560 1.020 0.000
+H -1.560 -0.510 0.884
+H -1.560 -0.510 -0.884
+H 0.540 0.510 0.884
+H 0.540 0.510 -0.884`,
+  bromoetano: `8
+Bromoetano C2H5Br
+C -0.900 0.000 0.000
+C 0.540 0.000 0.000
+Br 2.420 0.000 0.000
+H -1.280 1.020 0.000
+H -1.280 -0.510 0.884
+H -1.280 -0.510 -0.884
+H 0.850 0.930 0.000
+H 0.850 -0.930 0.000`
+};
+
+function moleculeSVG(id) {
+  const atom = (x, y, label, cls='') => `<g class="svg-atom ${cls}"><circle cx="${x}" cy="${y}" r="22"></circle><text x="${x}" y="${y+7}">${label}</text></g>`;
+  const bond = (x1, y1, x2, y2, cls='') => `<line class="svg-bond ${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />`;
+  const doubleBond = (x1, y1, x2, y2) => `${bond(x1, y1-6, x2, y2-6, 'double')}${bond(x1, y1+6, x2, y2+6, 'double')}`;
+  let body = '';
+  if (id === 'metano') body = bond(210,130,210,62)+bond(210,130,210,198)+bond(210,130,115,130)+bond(210,130,305,130)+atom(210,130,'C','c')+atom(210,48,'H','h')+atom(210,212,'H','h')+atom(92,130,'H','h')+atom(328,130,'H','h');
+  else if (id === 'etano') body = bond(168,130,252,130)+bond(168,130,106,65)+bond(168,130,106,195)+bond(168,130,168,60)+bond(252,130,314,65)+bond(252,130,314,195)+bond(252,130,252,200)+atom(168,130,'C','c')+atom(252,130,'C','c')+atom(106,65,'H','h')+atom(106,195,'H','h')+atom(168,46,'H','h')+atom(314,65,'H','h')+atom(314,195,'H','h')+atom(252,214,'H','h');
+  else if (id === 'eteno') body = doubleBond(170,130,250,130)+bond(170,130,105,70)+bond(170,130,105,190)+bond(250,130,315,70)+bond(250,130,315,190)+atom(170,130,'C','c')+atom(250,130,'C','c')+atom(95,60,'H','h')+atom(95,200,'H','h')+atom(325,60,'H','h')+atom(325,200,'H','h');
+  else if (id === 'etanol') body = bond(145,130,220,130)+bond(220,130,290,130)+bond(290,130,350,95)+bond(145,130,95,70)+bond(145,130,95,190)+bond(145,130,145,55)+bond(220,130,220,205)+bond(220,130,270,190)+atom(145,130,'C','c')+atom(220,130,'C','c')+atom(290,130,'O','o')+atom(358,88,'H','h')+atom(85,62,'H','h')+atom(85,198,'H','h')+atom(145,42,'H','h')+atom(220,218,'H','h')+atom(280,198,'H','h');
+  else if (id === 'bromoetano') body = bond(145,130,225,130)+bond(225,130,315,130)+bond(145,130,90,70)+bond(145,130,90,190)+bond(145,130,145,55)+bond(225,130,225,205)+bond(225,130,275,190)+atom(145,130,'C','c')+atom(225,130,'C','c')+atom(330,130,'Br','br')+atom(80,62,'H','h')+atom(80,198,'H','h')+atom(145,42,'H','h')+atom(225,218,'H','h')+atom(285,198,'H','h');
+  else body = '<text x="210" y="130" text-anchor="middle">Estrutura indisponível</text>';
+  return `<svg class="molecule-svg" viewBox="0 0 420 260" role="img" aria-label="Representação 2D da molécula">${body}</svg>`;
+}
+
+function render3DViewer(mol) {
+  const viewerEl = $('mol3dViewer');
+  if (!viewerEl || !mol) return;
+  const xyz = XYZ_MODELS[mol.id];
+  if (!xyz) { viewerEl.innerHTML = '<div class="viewer-fallback">Modelo 3D indisponível.</div>'; return; }
+  if (!window.$3Dmol) { viewerEl.innerHTML = '<div class="viewer-fallback">Viewer 3D não carregou. A estrutura 2D continua disponível. Em GitHub Pages com internet, o 3D abre automaticamente.</div>'; return; }
+  viewerEl.innerHTML = '';
+  const viewer = $3Dmol.createViewer(viewerEl, { backgroundColor: 'rgba(0,0,0,0)' });
+  viewer.addModel(xyz, 'xyz');
+  viewer.setStyle({}, { stick: { radius: 0.16 }, sphere: { scale: 0.32 } });
+  viewer.zoomTo();
+  viewer.rotate(18, 'y');
+  viewer.rotate(8, 'x');
+  viewer.render();
+}
 
 function currentMolecule() { return MOLECULES[state.targetIndex] || null; }
 function clampScore() { state.score = Math.max(0, state.score); }
@@ -174,7 +268,7 @@ function resetGame(keepIdentity = true) {
   const turma = keepIdentity ? state.turma : 'Turma livre';
   Object.assign(state, {
     player, turma, score: 0, targetIndex: 0, playerPos: { x: 0, y: 0 }, mapAtoms: [], inventory: {},
-    hypothesisDone: false, countDone: false, justificationDone: false, built: [], completedReactions: [],
+    hypothesisDone: false, countDone: false, justificationDone: false, built: [], completedReactions: [], optionOrders: {},
     selectedReactionId: null, reactionAnswered: false, reactionJustified: false, lastFeedback: '',
     stats: {
       collectionCorrect: 0, collectionWrong: 0, formulaAttempts: 0, formulaErrors: 0,
@@ -319,7 +413,7 @@ function renderHypothesis() {
     box.innerHTML = `<h3>Hipótese correta: ${mol.formula}</h3><p class="small-text">${status}</p>`;
     return;
   }
-  const opts = mol.hypothesis.options.map(opt => `<button class="option-btn" data-hypothesis="${opt}">${opt}</button>`).join('');
+  const opts = orderedOptions(`hypothesis:${mol.id}`, mol.hypothesis.options).map(opt => `<button class="option-btn" data-hypothesis="${opt}">${opt}</button>`).join('');
   box.innerHTML = `
     <h3>Hipótese molecular obrigatória</h3>
     <p class="small-text">${mol.prompt}</p>
@@ -417,13 +511,13 @@ function renderBuilder() {
     return;
   }
   if (!state.countDone) {
-    const opts = mol.count.options.map(opt => `<button class="option-btn" data-count="${opt}">${opt}</button>`).join('');
+    const opts = orderedOptions(`count:${mol.id}`, mol.count.options).map(opt => `<button class="option-btn" data-count="${opt}">${opt}</button>`).join('');
     content.innerHTML = `${gallery}<div class="builder-step"><h3>Etapa 1 — Contagem molecular</h3><p class="small-text">${mol.count.question}</p><div class="option-grid">${opts}</div></div>`;
     document.querySelectorAll('[data-count]').forEach(btn => btn.addEventListener('click', () => answerCount(btn.dataset.count, btn)));
     return;
   }
   if (!state.justificationDone) {
-    const opts = mol.justification.options.map(opt => `<button class="option-btn" data-justify="${opt}">${opt}</button>`).join('');
+    const opts = orderedOptions(`justify:${mol.id}`, mol.justification.options).map(opt => `<button class="option-btn" data-justify="${opt}">${opt}</button>`).join('');
     content.innerHTML = `${gallery}<div class="builder-step"><h3>Etapa 2 — Justificativa química</h3><p class="small-text">${mol.justification.question}</p><div class="option-grid">${opts}</div></div>`;
     document.querySelectorAll('[data-justify]').forEach(btn => btn.addEventListener('click', () => answerJustification(btn.dataset.justify, btn)));
     return;
@@ -431,11 +525,22 @@ function renderBuilder() {
   content.innerHTML = `${gallery}
     <div class="builder-step">
       <h3>Etapa 3 — Construção visual: ${mol.name} (${mol.formula})</h3>
-      <p class="small-text">Confira a representação simplificada. Ela não substitui a estrutura 3D, mas ajuda a visualizar conectividade e valência.</p>
-      <div class="molecule-visual"><pre>${mol.diagram}</pre></div>
+      <p class="small-text">Confira a conectividade em 2D e, quando houver internet, explore a estrutura 3D interativa. O modelo 3D ajuda a visualizar geometria; a estrutura 2D reforça valência e conectividade.</p>
+      <div class="molecule-viewer-grid">
+        <div class="molecule-visual">
+          <h4>Estrutura 2D corrigida</h4>
+          ${moleculeSVG(mol.id)}
+        </div>
+        <div class="molecule-visual">
+          <h4>Estrutura 3D interativa</h4>
+          <div id="mol3dViewer" class="mol3d-viewer"></div>
+          <p class="small-text">Arraste para girar; use scroll/pinça para aproximar. Se o CDN não carregar, use a estrutura 2D.</p>
+        </div>
+      </div>
       <div class="action-buttons"><button class="primary-btn" id="buildMolBtn">Construir ${mol.name} e avançar</button></div>
     </div>`;
   $('buildMolBtn').addEventListener('click', buildCurrentMolecule);
+  setTimeout(() => render3DViewer(mol), 0);
 }
 
 function answerCount(choice, btn) {
@@ -525,10 +630,10 @@ function selectReaction(id) {
 
 function renderReactionStep(r) {
   if (!state.reactionAnswered) {
-    const opts = r.options.map(opt => `<button class="option-btn" data-reaction-answer="${opt}">${opt}</button>`).join('');
+    const opts = orderedOptions(`reaction:${r.id}:answer`, r.options).map(opt => `<button class="option-btn" data-reaction-answer="${opt}">${opt}</button>`).join('');
     return `<div class="reaction-step"><h3>${r.equation}</h3><p class="small-text">Escolha o produto ou tipo de reação esperado.</p><div class="option-grid">${opts}</div>${state.lastFeedback ? `<div class="feedback-box bad">${state.lastFeedback}</div>` : ''}</div>`;
   }
-  const opts = r.why.options.map(opt => `<button class="option-btn" data-reaction-why="${opt}">${opt}</button>`).join('');
+  const opts = orderedOptions(`reaction:${r.id}:why`, r.why.options).map(opt => `<button class="option-btn" data-reaction-why="${opt}">${opt}</button>`).join('');
   return `<div class="reaction-step"><h3>Justificativa obrigatória</h3><p class="small-text">${r.why.question}</p><div class="option-grid">${opts}</div>${state.lastFeedback ? `<div class="feedback-box">${state.lastFeedback}</div>` : ''}</div>`;
 }
 
@@ -686,11 +791,11 @@ function saveRanking() {
   const data = getRanking();
   data.push({ name: state.player, turma: state.turma, score: state.score, built: state.built.length, reactions: state.completedReactions.length, date: new Date().toLocaleString('pt-BR') });
   data.sort((a,b) => b.score - a.score);
-  localStorage.setItem('benMolcraftV3Ranking', JSON.stringify(data.slice(0, 8)));
+  localStorage.setItem('benMolcraftV4Ranking', JSON.stringify(data.slice(0, 8)));
 }
 
 function getRanking() {
-  try { return JSON.parse(localStorage.getItem('benMolcraftV3Ranking') || '[]'); }
+  try { return JSON.parse(localStorage.getItem('benMolcraftV4Ranking') || '[]'); }
   catch { return []; }
 }
 
